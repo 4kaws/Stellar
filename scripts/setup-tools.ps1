@@ -25,11 +25,31 @@ function Get-ToolsPath([string] $RelativePath) {
     return $absolute
 }
 
+# Get-FileHash and Expand-Archive are functions exported by on-disk modules
+# (Microsoft.PowerShell.Utility, Microsoft.PowerShell.Archive) and therefore depend
+# on module autoloading, unlike the compiled cmdlets used elsewhere in this script.
+# A host that starts Windows PowerShell with a PSModulePath that omits the system
+# module directory resolves the cmdlets but not these functions. The .NET calls
+# below are always available and keep the bootstrap free of ambient dependencies.
+function Get-Sha256Hex([string] $Path) {
+    $sha = [Security.Cryptography.SHA256]::Create()
+    try {
+        $stream = [IO.File]::Open($Path, [IO.FileMode]::Open, [IO.FileAccess]::Read, [IO.FileShare]::Read)
+        try {
+            return ([BitConverter]::ToString($sha.ComputeHash($stream))).Replace('-', '').ToLowerInvariant()
+        } finally {
+            $stream.Dispose()
+        }
+    } finally {
+        $sha.Dispose()
+    }
+}
+
 function Assert-Sha256([string] $Path, [string] $Expected) {
     if (-not (Test-Path -LiteralPath $Path -PathType Leaf)) {
         throw "Missing toolchain file: $Path"
     }
-    $actual = (Get-FileHash -LiteralPath $Path -Algorithm SHA256).Hash.ToLowerInvariant()
+    $actual = Get-Sha256Hex $Path
     if ($actual -cne $Expected) {
         throw "SHA256 mismatch for $Path. Expected $Expected; got $actual."
     }
@@ -53,7 +73,7 @@ function Assert-ToolchainTree([string] $Root) {
     [Array]::Sort($paths, [StringComparer]::Ordinal)
     $manifest = New-Object System.Text.StringBuilder
     foreach ($relative in $paths) {
-        $hash = (Get-FileHash -LiteralPath (Join-Path $Root $relative) -Algorithm SHA256).Hash.ToLowerInvariant()
+        $hash = Get-Sha256Hex (Join-Path $Root $relative)
         [void]$manifest.Append($relative).Append("`t").Append($hash).Append("`n")
     }
     $sha = [Security.Cryptography.SHA256]::Create()
@@ -92,7 +112,8 @@ if (Test-Path -LiteralPath $install) {
     }
     Assert-Sha256 $archive $lock.dafny.archive.sha256
     $staging = Get-ToolsPath ('.tools/extract-' + [Guid]::NewGuid().ToString('N'))
-    Expand-Archive -LiteralPath $archive -DestinationPath $staging
+    Add-Type -AssemblyName System.IO.Compression.FileSystem
+    [IO.Compression.ZipFile]::ExtractToDirectory($archive, $staging)
     Assert-ToolchainTree (Join-Path $staging 'dafny')
     # Both absolute directory paths were checked by Get-ToolsPath; no recursive deletion.
     Move-Item -LiteralPath $staging -Destination $install
