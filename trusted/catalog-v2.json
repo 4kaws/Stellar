@@ -1,0 +1,2767 @@
+{
+  "schemaVersion": 1,
+  "policyVersion": "v2",
+  "components": [
+    {
+      "id": "discount",
+      "name": "Discount",
+      "parameters": [
+        "price",
+        "bps"
+      ],
+      "requirement": "Return the payable minor-unit amount after a 0..10000 basis-point discount, rounding the payable amount down; invalid inputs return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (Discount; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if price > 1000000000000 || bps > 1000000000000 then r == -1 else (if price < 0 || bps < 0 || bps > 10000 then r == -1 else r == (price * (10000 - bps) / 10000))",
+      "witness": [
+        "100",
+        "2500"
+      ],
+      "cases": [
+        {
+          "args": [
+            "100",
+            "2500"
+          ],
+          "expected": "75",
+          "label": "quarter discount"
+        },
+        {
+          "args": [
+            "1",
+            "1"
+          ],
+          "expected": "0",
+          "label": "payable rounds down"
+        },
+        {
+          "args": [
+            "101",
+            "5000"
+          ],
+          "expected": "50",
+          "label": "half minor unit"
+        },
+        {
+          "args": [
+            "0",
+            "10000"
+          ],
+          "expected": "0",
+          "label": "zero price"
+        },
+        {
+          "args": [
+            "123",
+            "10000"
+          ],
+          "expected": "0",
+          "label": "full discount"
+        },
+        {
+          "args": [
+            "123",
+            "0"
+          ],
+          "expected": "123",
+          "label": "no discount"
+        },
+        {
+          "args": [
+            "-1",
+            "100"
+          ],
+          "expected": "-1",
+          "label": "negative price"
+        },
+        {
+          "args": [
+            "100",
+            "-1"
+          ],
+          "expected": "-1",
+          "label": "negative rate"
+        },
+        {
+          "args": [
+            "100",
+            "10001"
+          ],
+          "expected": "-1",
+          "label": "excessive rate"
+        },
+        {
+          "args": [
+            "9007199254740993",
+            "5000"
+          ],
+          "expected": "-1",
+          "label": "exact huge integer; v2 rejects input above ceiling (v1 result 4503599627370496)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "101",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "5000",
+          "9999",
+          "10000",
+          "10001",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "add_tax",
+      "name": "AddTax",
+      "parameters": [
+        "price",
+        "bps"
+      ],
+      "requirement": "Return nonnegative price plus tax at 0..10000 basis points, rounding the added tax up; invalid inputs return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (AddTax; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if price > 1000000000000 || bps > 1000000000000 then r == -1 else (if price < 0 || bps < 0 || bps > 10000 then r == -1 else r == (price + (price * bps + 9999) / 10000))",
+      "witness": [
+        "100",
+        "2000"
+      ],
+      "cases": [
+        {
+          "args": [
+            "100",
+            "2000"
+          ],
+          "expected": "120",
+          "label": "whole tax"
+        },
+        {
+          "args": [
+            "1",
+            "1"
+          ],
+          "expected": "2",
+          "label": "fractional tax rounds up"
+        },
+        {
+          "args": [
+            "101",
+            "5000"
+          ],
+          "expected": "152",
+          "label": "half minor unit tax"
+        },
+        {
+          "args": [
+            "0",
+            "9999"
+          ],
+          "expected": "0",
+          "label": "zero price"
+        },
+        {
+          "args": [
+            "123",
+            "0"
+          ],
+          "expected": "123",
+          "label": "no tax"
+        },
+        {
+          "args": [
+            "123",
+            "10000"
+          ],
+          "expected": "246",
+          "label": "maximum rate"
+        },
+        {
+          "args": [
+            "-1",
+            "100"
+          ],
+          "expected": "-1",
+          "label": "negative price"
+        },
+        {
+          "args": [
+            "100",
+            "-1"
+          ],
+          "expected": "-1",
+          "label": "negative rate"
+        },
+        {
+          "args": [
+            "100",
+            "10001"
+          ],
+          "expected": "-1",
+          "label": "excessive rate"
+        },
+        {
+          "args": [
+            "9007199254740993",
+            "10000"
+          ],
+          "expected": "-1",
+          "label": "exact huge integer; v2 rejects input above ceiling (v1 result 18014398509481986)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "101",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "5000",
+          "10000",
+          "10001",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "prorate",
+      "name": "Prorate",
+      "parameters": [
+        "amount",
+        "used",
+        "total"
+      ],
+      "requirement": "For nonnegative amount, positive total and 0 <= used <= total, return the proportional amount rounded down; invalid inputs return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (Prorate; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if amount > 1000000000000 || used > 1000000000000 || total > 1000000000000 then r == -1 else (if amount < 0 || used < 0 || total <= 0 || used > total then r == -1 else r == (amount * used / total))",
+      "witness": [
+        "100",
+        "1",
+        "3"
+      ],
+      "cases": [
+        {
+          "args": [
+            "100",
+            "1",
+            "3"
+          ],
+          "expected": "33",
+          "label": "third rounds down"
+        },
+        {
+          "args": [
+            "101",
+            "2",
+            "3"
+          ],
+          "expected": "67",
+          "label": "fraction rounds down"
+        },
+        {
+          "args": [
+            "50",
+            "0",
+            "10"
+          ],
+          "expected": "0",
+          "label": "nothing used"
+        },
+        {
+          "args": [
+            "50",
+            "10",
+            "10"
+          ],
+          "expected": "50",
+          "label": "all used"
+        },
+        {
+          "args": [
+            "0",
+            "1",
+            "1"
+          ],
+          "expected": "0",
+          "label": "zero amount"
+        },
+        {
+          "args": [
+            "-1",
+            "1",
+            "2"
+          ],
+          "expected": "-1",
+          "label": "negative amount"
+        },
+        {
+          "args": [
+            "10",
+            "-1",
+            "2"
+          ],
+          "expected": "-1",
+          "label": "negative used"
+        },
+        {
+          "args": [
+            "10",
+            "0",
+            "0"
+          ],
+          "expected": "-1",
+          "label": "zero total"
+        },
+        {
+          "args": [
+            "10",
+            "0",
+            "-1"
+          ],
+          "expected": "-1",
+          "label": "negative total"
+        },
+        {
+          "args": [
+            "10",
+            "3",
+            "2"
+          ],
+          "expected": "-1",
+          "label": "overuse"
+        },
+        {
+          "args": [
+            "9007199254740993",
+            "1",
+            "2"
+          ],
+          "expected": "-1",
+          "label": "exact huge integer; v2 rejects input above ceiling (v1 result 4503599627370496)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "100",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "2",
+          "3",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "2",
+          "3",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "ceil_div",
+      "name": "CeilDiv",
+      "parameters": [
+        "amount",
+        "size"
+      ],
+      "requirement": "Return the count of positive-size units required to cover a nonnegative amount, rounding up; invalid inputs return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (CeilDiv; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if amount > 1000000000000 || size > 1000000000000 then r == -1 else (if amount < 0 || size <= 0 then r == -1 else r == ((amount + size - 1) / size))",
+      "witness": [
+        "11",
+        "5"
+      ],
+      "cases": [
+        {
+          "args": [
+            "11",
+            "5"
+          ],
+          "expected": "3",
+          "label": "partial final unit"
+        },
+        {
+          "args": [
+            "10",
+            "5"
+          ],
+          "expected": "2",
+          "label": "exact units"
+        },
+        {
+          "args": [
+            "1",
+            "5"
+          ],
+          "expected": "1",
+          "label": "single partial unit"
+        },
+        {
+          "args": [
+            "0",
+            "5"
+          ],
+          "expected": "0",
+          "label": "empty amount"
+        },
+        {
+          "args": [
+            "1",
+            "1"
+          ],
+          "expected": "1",
+          "label": "unit size"
+        },
+        {
+          "args": [
+            "-1",
+            "5"
+          ],
+          "expected": "-1",
+          "label": "negative amount"
+        },
+        {
+          "args": [
+            "1",
+            "0"
+          ],
+          "expected": "-1",
+          "label": "zero size"
+        },
+        {
+          "args": [
+            "1",
+            "-1"
+          ],
+          "expected": "-1",
+          "label": "negative size"
+        },
+        {
+          "args": [
+            "9007199254740993",
+            "2"
+          ],
+          "expected": "-1",
+          "label": "exact huge integer; v2 rejects input above ceiling (v1 result 4503599627370497)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "5",
+          "11",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "2",
+          "5",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "clamp",
+      "name": "Clamp",
+      "parameters": [
+        "value",
+        "lower",
+        "upper"
+      ],
+      "requirement": "Clamp any integer value to inclusive nonnegative bounds; reject lower < 0 or upper < lower with -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (Clamp; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if value > 1000000000000 || lower > 1000000000000 || upper > 1000000000000 then r == -1 else (if lower < 0 || upper < lower then r == -1 else r == (if value < lower then lower else if value > upper then upper else value))",
+      "witness": [
+        "5",
+        "0",
+        "10"
+      ],
+      "cases": [
+        {
+          "args": [
+            "5",
+            "0",
+            "10"
+          ],
+          "expected": "5",
+          "label": "interior"
+        },
+        {
+          "args": [
+            "-5",
+            "0",
+            "10"
+          ],
+          "expected": "0",
+          "label": "negative value accepted"
+        },
+        {
+          "args": [
+            "20",
+            "0",
+            "10"
+          ],
+          "expected": "10",
+          "label": "above upper"
+        },
+        {
+          "args": [
+            "2",
+            "2",
+            "10"
+          ],
+          "expected": "2",
+          "label": "lower equality"
+        },
+        {
+          "args": [
+            "10",
+            "2",
+            "10"
+          ],
+          "expected": "10",
+          "label": "upper equality"
+        },
+        {
+          "args": [
+            "99",
+            "3",
+            "3"
+          ],
+          "expected": "3",
+          "label": "collapsed bounds"
+        },
+        {
+          "args": [
+            "0",
+            "-1",
+            "10"
+          ],
+          "expected": "-1",
+          "label": "negative lower"
+        },
+        {
+          "args": [
+            "5",
+            "10",
+            "2"
+          ],
+          "expected": "-1",
+          "label": "inverted bounds"
+        },
+        {
+          "args": [
+            "9007199254740994",
+            "0",
+            "9007199254740993"
+          ],
+          "expected": "-1",
+          "label": "exact huge upper bound; v2 rejects input above ceiling (v1 result 9007199254740993)"
+        }
+      ],
+      "samples": [
+        [
+          "-10",
+          "-1",
+          "0",
+          "1",
+          "5",
+          "10",
+          "9007199254740994",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "5",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "5",
+          "10",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "saturating_sub",
+      "name": "SaturatingSub",
+      "parameters": [
+        "balance",
+        "debit"
+      ],
+      "requirement": "For nonnegative balance and debit, subtract debit with a floor at zero; invalid inputs return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (SaturatingSub; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if balance > 1000000000000 || debit > 1000000000000 then r == -1 else (if balance < 0 || debit < 0 then r == -1 else r == (if debit > balance then 0 else balance - debit))",
+      "witness": [
+        "10",
+        "3"
+      ],
+      "cases": [
+        {
+          "args": [
+            "10",
+            "3"
+          ],
+          "expected": "7",
+          "label": "ordinary debit"
+        },
+        {
+          "args": [
+            "10",
+            "10"
+          ],
+          "expected": "0",
+          "label": "exact debit"
+        },
+        {
+          "args": [
+            "10",
+            "11"
+          ],
+          "expected": "0",
+          "label": "overdraft saturates"
+        },
+        {
+          "args": [
+            "10",
+            "0"
+          ],
+          "expected": "10",
+          "label": "zero debit"
+        },
+        {
+          "args": [
+            "0",
+            "0"
+          ],
+          "expected": "0",
+          "label": "both zero"
+        },
+        {
+          "args": [
+            "0",
+            "1"
+          ],
+          "expected": "0",
+          "label": "empty balance"
+        },
+        {
+          "args": [
+            "-1",
+            "1"
+          ],
+          "expected": "-1",
+          "label": "negative balance"
+        },
+        {
+          "args": [
+            "1",
+            "-1"
+          ],
+          "expected": "-1",
+          "label": "negative debit"
+        },
+        {
+          "args": [
+            "9007199254740993",
+            "1"
+          ],
+          "expected": "-1",
+          "label": "exact huge integer; v2 rejects input above ceiling (v1 result 9007199254740992)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "10",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "10",
+          "11",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "transfer_remaining",
+      "name": "TransferRemaining",
+      "parameters": [
+        "balance",
+        "amount"
+      ],
+      "requirement": "Return nonnegative balance remaining after a nonnegative affordable transfer; invalid or insufficient funds return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (TransferRemaining; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if balance > 1000000000000 || amount > 1000000000000 then r == -1 else (if balance < 0 || amount < 0 || amount > balance then r == -1 else r == (balance - amount))",
+      "witness": [
+        "10",
+        "3"
+      ],
+      "cases": [
+        {
+          "args": [
+            "10",
+            "3"
+          ],
+          "expected": "7",
+          "label": "ordinary transfer"
+        },
+        {
+          "args": [
+            "10",
+            "10"
+          ],
+          "expected": "0",
+          "label": "entire balance"
+        },
+        {
+          "args": [
+            "10",
+            "11"
+          ],
+          "expected": "-1",
+          "label": "insufficient balance"
+        },
+        {
+          "args": [
+            "10",
+            "0"
+          ],
+          "expected": "10",
+          "label": "zero transfer"
+        },
+        {
+          "args": [
+            "0",
+            "0"
+          ],
+          "expected": "0",
+          "label": "empty zero transfer"
+        },
+        {
+          "args": [
+            "0",
+            "1"
+          ],
+          "expected": "-1",
+          "label": "empty insufficient balance"
+        },
+        {
+          "args": [
+            "-1",
+            "0"
+          ],
+          "expected": "-1",
+          "label": "negative balance"
+        },
+        {
+          "args": [
+            "1",
+            "-1"
+          ],
+          "expected": "-1",
+          "label": "negative amount"
+        },
+        {
+          "args": [
+            "9007199254740993",
+            "1"
+          ],
+          "expected": "-1",
+          "label": "exact huge integer; v2 rejects input above ceiling (v1 result 9007199254740992)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "10",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "10",
+          "11",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "shipping_fee",
+      "name": "ShippingFee",
+      "parameters": [
+        "subtotal",
+        "threshold",
+        "fee"
+      ],
+      "requirement": "For nonnegative values, charge fee below subtotal threshold and zero at or above threshold; invalid inputs return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (ShippingFee; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if subtotal > 1000000000000 || threshold > 1000000000000 || fee > 1000000000000 then r == -1 else (if subtotal < 0 || threshold < 0 || fee < 0 then r == -1 else r == (if subtotal >= threshold then 0 else fee))",
+      "witness": [
+        "99",
+        "100",
+        "10"
+      ],
+      "cases": [
+        {
+          "args": [
+            "99",
+            "100",
+            "10"
+          ],
+          "expected": "10",
+          "label": "below threshold"
+        },
+        {
+          "args": [
+            "100",
+            "100",
+            "10"
+          ],
+          "expected": "0",
+          "label": "threshold equality"
+        },
+        {
+          "args": [
+            "101",
+            "100",
+            "10"
+          ],
+          "expected": "0",
+          "label": "above threshold"
+        },
+        {
+          "args": [
+            "0",
+            "0",
+            "10"
+          ],
+          "expected": "0",
+          "label": "zero threshold"
+        },
+        {
+          "args": [
+            "0",
+            "100",
+            "0"
+          ],
+          "expected": "0",
+          "label": "zero fee"
+        },
+        {
+          "args": [
+            "-1",
+            "100",
+            "10"
+          ],
+          "expected": "-1",
+          "label": "negative subtotal"
+        },
+        {
+          "args": [
+            "1",
+            "-1",
+            "10"
+          ],
+          "expected": "-1",
+          "label": "negative threshold"
+        },
+        {
+          "args": [
+            "1",
+            "100",
+            "-1"
+          ],
+          "expected": "-1",
+          "label": "negative fee"
+        },
+        {
+          "args": [
+            "0",
+            "9007199254740993",
+            "9007199254740993"
+          ],
+          "expected": "-1",
+          "label": "exact huge fee; v2 rejects input above ceiling (v1 result 9007199254740993)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "99",
+          "100",
+          "101",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "100",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "10",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "loyalty_points",
+      "name": "LoyaltyPoints",
+      "parameters": [
+        "spend",
+        "unit"
+      ],
+      "requirement": "For nonnegative spend and positive unit, return whole points units rounded down; invalid inputs return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (LoyaltyPoints; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if spend > 1000000000000 || unit > 1000000000000 then r == -1 else (if spend < 0 || unit <= 0 then r == -1 else r == (spend / unit))",
+      "witness": [
+        "101",
+        "10"
+      ],
+      "cases": [
+        {
+          "args": [
+            "101",
+            "10"
+          ],
+          "expected": "10",
+          "label": "remainder discarded"
+        },
+        {
+          "args": [
+            "100",
+            "10"
+          ],
+          "expected": "10",
+          "label": "exact multiple"
+        },
+        {
+          "args": [
+            "9",
+            "10"
+          ],
+          "expected": "0",
+          "label": "below one point"
+        },
+        {
+          "args": [
+            "0",
+            "10"
+          ],
+          "expected": "0",
+          "label": "zero spend"
+        },
+        {
+          "args": [
+            "7",
+            "1"
+          ],
+          "expected": "7",
+          "label": "unit worth one"
+        },
+        {
+          "args": [
+            "-1",
+            "10"
+          ],
+          "expected": "-1",
+          "label": "negative spend"
+        },
+        {
+          "args": [
+            "1",
+            "0"
+          ],
+          "expected": "-1",
+          "label": "zero unit"
+        },
+        {
+          "args": [
+            "1",
+            "-1"
+          ],
+          "expected": "-1",
+          "label": "negative unit"
+        },
+        {
+          "args": [
+            "9007199254740993",
+            "2"
+          ],
+          "expected": "-1",
+          "label": "exact huge integer; v2 rejects input above ceiling (v1 result 4503599627370496)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "9",
+          "10",
+          "101",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "2",
+          "10",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "tier_rate",
+      "name": "TierRate",
+      "parameters": [
+        "quantity",
+        "threshold",
+        "low",
+        "high"
+      ],
+      "requirement": "For nonnegative values, select low below threshold and high at or above threshold; the rates need not be ordered; invalid inputs return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (TierRate; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if quantity > 1000000000000 || threshold > 1000000000000 || low > 1000000000000 || high > 1000000000000 then r == -1 else (if quantity < 0 || threshold < 0 || low < 0 || high < 0 then r == -1 else r == (if quantity >= threshold then high else low))",
+      "witness": [
+        "9",
+        "10",
+        "2",
+        "3"
+      ],
+      "cases": [
+        {
+          "args": [
+            "9",
+            "10",
+            "2",
+            "3"
+          ],
+          "expected": "2",
+          "label": "below tier"
+        },
+        {
+          "args": [
+            "10",
+            "10",
+            "2",
+            "3"
+          ],
+          "expected": "3",
+          "label": "tier equality"
+        },
+        {
+          "args": [
+            "11",
+            "10",
+            "2",
+            "3"
+          ],
+          "expected": "3",
+          "label": "above tier"
+        },
+        {
+          "args": [
+            "0",
+            "0",
+            "2",
+            "3"
+          ],
+          "expected": "3",
+          "label": "zero threshold"
+        },
+        {
+          "args": [
+            "10",
+            "10",
+            "5",
+            "2"
+          ],
+          "expected": "2",
+          "label": "descending rates permitted"
+        },
+        {
+          "args": [
+            "1",
+            "10",
+            "0",
+            "0"
+          ],
+          "expected": "0",
+          "label": "zero rates"
+        },
+        {
+          "args": [
+            "-1",
+            "10",
+            "2",
+            "3"
+          ],
+          "expected": "-1",
+          "label": "negative quantity"
+        },
+        {
+          "args": [
+            "1",
+            "-1",
+            "2",
+            "3"
+          ],
+          "expected": "-1",
+          "label": "negative threshold"
+        },
+        {
+          "args": [
+            "1",
+            "10",
+            "-1",
+            "3"
+          ],
+          "expected": "-1",
+          "label": "negative low"
+        },
+        {
+          "args": [
+            "1",
+            "10",
+            "2",
+            "-1"
+          ],
+          "expected": "-1",
+          "label": "negative high"
+        },
+        {
+          "args": [
+            "9007199254740993",
+            "9007199254740993",
+            "1",
+            "9007199254740993"
+          ],
+          "expected": "-1",
+          "label": "exact huge tier; v2 rejects input above ceiling (v1 result 9007199254740993)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "9",
+          "10",
+          "11",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "10",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "5",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "2",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "late_fee",
+      "name": "LateFee",
+      "parameters": [
+        "days",
+        "grace",
+        "rate",
+        "cap"
+      ],
+      "requirement": "For nonnegative values, charge days beyond grace times rate, limited to cap; invalid inputs return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (LateFee; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if days > 1000000000000 || grace > 1000000000000 || rate > 1000000000000 || cap > 1000000000000 then r == -1 else (if days < 0 || grace < 0 || rate < 0 || cap < 0 then r == -1 else r == (if days <= grace then 0 else if (days - grace) * rate > cap then cap else (days - grace) * rate))",
+      "witness": [
+        "5",
+        "2",
+        "3",
+        "100"
+      ],
+      "cases": [
+        {
+          "args": [
+            "5",
+            "2",
+            "3",
+            "100"
+          ],
+          "expected": "9",
+          "label": "uncapped fee"
+        },
+        {
+          "args": [
+            "2",
+            "2",
+            "3",
+            "100"
+          ],
+          "expected": "0",
+          "label": "grace equality"
+        },
+        {
+          "args": [
+            "1",
+            "2",
+            "3",
+            "100"
+          ],
+          "expected": "0",
+          "label": "within grace"
+        },
+        {
+          "args": [
+            "5",
+            "2",
+            "3",
+            "8"
+          ],
+          "expected": "8",
+          "label": "fee capped"
+        },
+        {
+          "args": [
+            "5",
+            "2",
+            "3",
+            "9"
+          ],
+          "expected": "9",
+          "label": "cap equality"
+        },
+        {
+          "args": [
+            "5",
+            "2",
+            "0",
+            "100"
+          ],
+          "expected": "0",
+          "label": "zero rate"
+        },
+        {
+          "args": [
+            "5",
+            "2",
+            "3",
+            "0"
+          ],
+          "expected": "0",
+          "label": "zero cap"
+        },
+        {
+          "args": [
+            "-1",
+            "2",
+            "3",
+            "100"
+          ],
+          "expected": "-1",
+          "label": "negative days"
+        },
+        {
+          "args": [
+            "5",
+            "-1",
+            "3",
+            "100"
+          ],
+          "expected": "-1",
+          "label": "negative grace"
+        },
+        {
+          "args": [
+            "5",
+            "2",
+            "-1",
+            "100"
+          ],
+          "expected": "-1",
+          "label": "negative rate"
+        },
+        {
+          "args": [
+            "5",
+            "2",
+            "3",
+            "-1"
+          ],
+          "expected": "-1",
+          "label": "negative cap"
+        },
+        {
+          "args": [
+            "9007199254740993",
+            "0",
+            "1",
+            "9007199254740993"
+          ],
+          "expected": "-1",
+          "label": "exact huge fee; v2 rejects input above ceiling (v1 result 9007199254740993)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "2",
+          "5",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "2",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "3",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "8",
+          "9",
+          "100",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "refund_cap",
+      "name": "RefundCap",
+      "parameters": [
+        "requested",
+        "paid"
+      ],
+      "requirement": "For nonnegative requested and paid amounts, return the smaller amount; invalid inputs return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (RefundCap; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if requested > 1000000000000 || paid > 1000000000000 then r == -1 else (if requested < 0 || paid < 0 then r == -1 else r == (if requested <= paid then requested else paid))",
+      "witness": [
+        "8",
+        "10"
+      ],
+      "cases": [
+        {
+          "args": [
+            "8",
+            "10"
+          ],
+          "expected": "8",
+          "label": "below paid"
+        },
+        {
+          "args": [
+            "10",
+            "10"
+          ],
+          "expected": "10",
+          "label": "exact paid"
+        },
+        {
+          "args": [
+            "11",
+            "10"
+          ],
+          "expected": "10",
+          "label": "refund capped"
+        },
+        {
+          "args": [
+            "0",
+            "10"
+          ],
+          "expected": "0",
+          "label": "zero requested"
+        },
+        {
+          "args": [
+            "10",
+            "0"
+          ],
+          "expected": "0",
+          "label": "nothing paid"
+        },
+        {
+          "args": [
+            "0",
+            "0"
+          ],
+          "expected": "0",
+          "label": "both zero"
+        },
+        {
+          "args": [
+            "-1",
+            "10"
+          ],
+          "expected": "-1",
+          "label": "negative requested"
+        },
+        {
+          "args": [
+            "1",
+            "-1"
+          ],
+          "expected": "-1",
+          "label": "negative paid"
+        },
+        {
+          "args": [
+            "9007199254740994",
+            "9007199254740993"
+          ],
+          "expected": "-1",
+          "label": "exact huge cap; v2 rejects input above ceiling (v1 result 9007199254740993)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "8",
+          "10",
+          "11",
+          "9007199254740994",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "10",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "inventory_available",
+      "name": "InventoryAvailable",
+      "parameters": [
+        "stock",
+        "reserved"
+      ],
+      "requirement": "Return nonnegative stock less reservations when reservations do not exceed stock; invalid inputs or overreservation return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (InventoryAvailable; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if stock > 1000000000000 || reserved > 1000000000000 then r == -1 else (if stock < 0 || reserved < 0 || reserved > stock then r == -1 else r == (stock - reserved))",
+      "witness": [
+        "10",
+        "3"
+      ],
+      "cases": [
+        {
+          "args": [
+            "10",
+            "3"
+          ],
+          "expected": "7",
+          "label": "partially reserved"
+        },
+        {
+          "args": [
+            "10",
+            "10"
+          ],
+          "expected": "0",
+          "label": "fully reserved"
+        },
+        {
+          "args": [
+            "10",
+            "11"
+          ],
+          "expected": "-1",
+          "label": "overreservation"
+        },
+        {
+          "args": [
+            "10",
+            "0"
+          ],
+          "expected": "10",
+          "label": "unreserved"
+        },
+        {
+          "args": [
+            "0",
+            "0"
+          ],
+          "expected": "0",
+          "label": "empty stock"
+        },
+        {
+          "args": [
+            "0",
+            "1"
+          ],
+          "expected": "-1",
+          "label": "empty overreservation"
+        },
+        {
+          "args": [
+            "-1",
+            "0"
+          ],
+          "expected": "-1",
+          "label": "negative stock"
+        },
+        {
+          "args": [
+            "1",
+            "-1"
+          ],
+          "expected": "-1",
+          "label": "negative reserved"
+        },
+        {
+          "args": [
+            "9007199254740993",
+            "1"
+          ],
+          "expected": "-1",
+          "label": "exact huge inventory; v2 rejects input above ceiling (v1 result 9007199254740992)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "10",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "10",
+          "11",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "reorder_quantity",
+      "name": "ReorderQuantity",
+      "parameters": [
+        "available",
+        "target"
+      ],
+      "requirement": "For nonnegative quantities, return the shortfall to target or zero if target is met; invalid inputs return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (ReorderQuantity; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if available > 1000000000000 || target > 1000000000000 then r == -1 else (if available < 0 || target < 0 then r == -1 else r == (if available >= target then 0 else target - available))",
+      "witness": [
+        "3",
+        "10"
+      ],
+      "cases": [
+        {
+          "args": [
+            "3",
+            "10"
+          ],
+          "expected": "7",
+          "label": "shortfall"
+        },
+        {
+          "args": [
+            "10",
+            "10"
+          ],
+          "expected": "0",
+          "label": "target equality"
+        },
+        {
+          "args": [
+            "11",
+            "10"
+          ],
+          "expected": "0",
+          "label": "above target"
+        },
+        {
+          "args": [
+            "0",
+            "10"
+          ],
+          "expected": "10",
+          "label": "empty inventory"
+        },
+        {
+          "args": [
+            "10",
+            "0"
+          ],
+          "expected": "0",
+          "label": "zero target"
+        },
+        {
+          "args": [
+            "0",
+            "0"
+          ],
+          "expected": "0",
+          "label": "both zero"
+        },
+        {
+          "args": [
+            "-1",
+            "10"
+          ],
+          "expected": "-1",
+          "label": "negative available"
+        },
+        {
+          "args": [
+            "1",
+            "-1"
+          ],
+          "expected": "-1",
+          "label": "negative target"
+        },
+        {
+          "args": [
+            "1",
+            "9007199254740993"
+          ],
+          "expected": "-1",
+          "label": "exact huge shortfall; v2 rejects input above ceiling (v1 result 9007199254740992)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "3",
+          "10",
+          "11",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "10",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "interval_overlap",
+      "name": "IntervalOverlap",
+      "parameters": [
+        "a_start",
+        "a_end",
+        "b_start",
+        "b_end"
+      ],
+      "requirement": "For half-open intervals with nonnegative ordered endpoints, return overlap length; empty or touching intervals have zero overlap; invalid inputs return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (IntervalOverlap; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if a_start > 1000000000000 || a_end > 1000000000000 || b_start > 1000000000000 || b_end > 1000000000000 then r == -1 else (if a_start < 0 || a_end < a_start || b_start < 0 || b_end < b_start then r == -1 else r == (if (if a_end <= b_end then a_end else b_end) <= (if a_start >= b_start then a_start else b_start) then 0 else (if a_end <= b_end then a_end else b_end) - (if a_start >= b_start then a_start else b_start)))",
+      "witness": [
+        "1",
+        "5",
+        "3",
+        "7"
+      ],
+      "cases": [
+        {
+          "args": [
+            "1",
+            "5",
+            "3",
+            "7"
+          ],
+          "expected": "2",
+          "label": "partial overlap"
+        },
+        {
+          "args": [
+            "3",
+            "7",
+            "1",
+            "5"
+          ],
+          "expected": "2",
+          "label": "symmetry"
+        },
+        {
+          "args": [
+            "1",
+            "10",
+            "3",
+            "5"
+          ],
+          "expected": "2",
+          "label": "nested interval"
+        },
+        {
+          "args": [
+            "1",
+            "5",
+            "1",
+            "5"
+          ],
+          "expected": "4",
+          "label": "equal intervals"
+        },
+        {
+          "args": [
+            "1",
+            "3",
+            "3",
+            "5"
+          ],
+          "expected": "0",
+          "label": "touching endpoints"
+        },
+        {
+          "args": [
+            "1",
+            "2",
+            "3",
+            "4"
+          ],
+          "expected": "0",
+          "label": "disjoint"
+        },
+        {
+          "args": [
+            "3",
+            "3",
+            "1",
+            "5"
+          ],
+          "expected": "0",
+          "label": "empty interval"
+        },
+        {
+          "args": [
+            "0",
+            "0",
+            "0",
+            "0"
+          ],
+          "expected": "0",
+          "label": "both empty"
+        },
+        {
+          "args": [
+            "-1",
+            "5",
+            "1",
+            "5"
+          ],
+          "expected": "-1",
+          "label": "negative first start"
+        },
+        {
+          "args": [
+            "1",
+            "5",
+            "-1",
+            "5"
+          ],
+          "expected": "-1",
+          "label": "negative second start"
+        },
+        {
+          "args": [
+            "5",
+            "1",
+            "1",
+            "5"
+          ],
+          "expected": "-1",
+          "label": "first inverted"
+        },
+        {
+          "args": [
+            "1",
+            "5",
+            "5",
+            "1"
+          ],
+          "expected": "-1",
+          "label": "second inverted"
+        },
+        {
+          "args": [
+            "0",
+            "9007199254740993",
+            "1",
+            "9007199254740994"
+          ],
+          "expected": "-1",
+          "label": "exact huge overlap; v2 rejects input above ceiling (v1 result 9007199254740992)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "3",
+          "5",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "3",
+          "5",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "3",
+          "5",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "3",
+          "5",
+          "9007199254740994",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "within_window",
+      "name": "WithinWindow",
+      "parameters": [
+        "value",
+        "start",
+        "end"
+      ],
+      "requirement": "For a nonnegative ordered half-open window, return 1 exactly when any-integer value is at least start and less than end, otherwise 0; invalid window returns -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (WithinWindow; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if value > 1000000000000 || start > 1000000000000 || end > 1000000000000 then r == -1 else (if start < 0 || end < start then r == -1 else r == (if start <= value && value < end then 1 else 0))",
+      "witness": [
+        "5",
+        "3",
+        "8"
+      ],
+      "cases": [
+        {
+          "args": [
+            "5",
+            "3",
+            "8"
+          ],
+          "expected": "1",
+          "label": "interior"
+        },
+        {
+          "args": [
+            "3",
+            "3",
+            "8"
+          ],
+          "expected": "1",
+          "label": "start included"
+        },
+        {
+          "args": [
+            "8",
+            "3",
+            "8"
+          ],
+          "expected": "0",
+          "label": "end excluded"
+        },
+        {
+          "args": [
+            "2",
+            "3",
+            "8"
+          ],
+          "expected": "0",
+          "label": "below start"
+        },
+        {
+          "args": [
+            "9",
+            "3",
+            "8"
+          ],
+          "expected": "0",
+          "label": "above end"
+        },
+        {
+          "args": [
+            "3",
+            "3",
+            "3"
+          ],
+          "expected": "0",
+          "label": "empty window"
+        },
+        {
+          "args": [
+            "-1",
+            "0",
+            "5"
+          ],
+          "expected": "0",
+          "label": "negative value accepted"
+        },
+        {
+          "args": [
+            "1",
+            "-1",
+            "5"
+          ],
+          "expected": "-1",
+          "label": "negative start"
+        },
+        {
+          "args": [
+            "1",
+            "5",
+            "3"
+          ],
+          "expected": "-1",
+          "label": "inverted window"
+        },
+        {
+          "args": [
+            "9007199254740993",
+            "0",
+            "9007199254740994"
+          ],
+          "expected": "-1",
+          "label": "exact huge membership; v2 rejects input above ceiling (v1 result 1)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "3",
+          "5",
+          "8",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "3",
+          "5",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "3",
+          "5",
+          "8",
+          "9007199254740994",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "leap_year",
+      "name": "LeapYear",
+      "parameters": [
+        "year"
+      ],
+      "requirement": "For a positive year, return 1 for a proleptic Gregorian leap year and 0 otherwise; invalid inputs return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (LeapYear; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if year > 1000000000000 then r == -1 else (if year <= 0 then r == -1 else r == (if (year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)) then 1 else 0))",
+      "witness": [
+        "2000"
+      ],
+      "cases": [
+        {
+          "args": [
+            "2000"
+          ],
+          "expected": "1",
+          "label": "four-hundred-year leap"
+        },
+        {
+          "args": [
+            "1900"
+          ],
+          "expected": "0",
+          "label": "century exception"
+        },
+        {
+          "args": [
+            "2024"
+          ],
+          "expected": "1",
+          "label": "ordinary leap"
+        },
+        {
+          "args": [
+            "2023"
+          ],
+          "expected": "0",
+          "label": "ordinary common"
+        },
+        {
+          "args": [
+            "1"
+          ],
+          "expected": "0",
+          "label": "first positive year"
+        },
+        {
+          "args": [
+            "4"
+          ],
+          "expected": "1",
+          "label": "early leap"
+        },
+        {
+          "args": [
+            "100"
+          ],
+          "expected": "0",
+          "label": "early century"
+        },
+        {
+          "args": [
+            "400"
+          ],
+          "expected": "1",
+          "label": "early four-hundred-year leap"
+        },
+        {
+          "args": [
+            "0"
+          ],
+          "expected": "-1",
+          "label": "year zero rejected"
+        },
+        {
+          "args": [
+            "-4"
+          ],
+          "expected": "-1",
+          "label": "negative year"
+        },
+        {
+          "args": [
+            "9007199254740993"
+          ],
+          "expected": "-1",
+          "label": "exact huge year; v2 rejects input above ceiling (v1 result 0)"
+        },
+        {
+          "args": [
+            "9007199254740996"
+          ],
+          "expected": "-1",
+          "label": "huge divisible-by-four year; v2 rejects input above ceiling (v1 result 1)"
+        }
+      ],
+      "samples": [
+        [
+          "-4",
+          "0",
+          "1",
+          "4",
+          "100",
+          "400",
+          "1900",
+          "2000",
+          "2024",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "days_in_month",
+      "name": "DaysInMonth",
+      "parameters": [
+        "year",
+        "month"
+      ],
+      "requirement": "Return proleptic Gregorian month length for positive year and month 1..12; invalid inputs return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (DaysInMonth; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if year > 1000000000000 || month > 1000000000000 then r == -1 else (if year <= 0 || month < 1 || month > 12 then r == -1 else r == (if month == 2 then (if (year % 400 == 0 || (year % 4 == 0 && year % 100 != 0)) then 29 else 28) else if month == 4 || month == 6 || month == 9 || month == 11 then 30 else 31))",
+      "witness": [
+        "2024",
+        "2"
+      ],
+      "cases": [
+        {
+          "args": [
+            "2024",
+            "2"
+          ],
+          "expected": "29",
+          "label": "leap February"
+        },
+        {
+          "args": [
+            "2023",
+            "2"
+          ],
+          "expected": "28",
+          "label": "common February"
+        },
+        {
+          "args": [
+            "1900",
+            "2"
+          ],
+          "expected": "28",
+          "label": "century common February"
+        },
+        {
+          "args": [
+            "2000",
+            "2"
+          ],
+          "expected": "29",
+          "label": "four-hundred-year leap February"
+        },
+        {
+          "args": [
+            "2024",
+            "1"
+          ],
+          "expected": "31",
+          "label": "January"
+        },
+        {
+          "args": [
+            "2024",
+            "4"
+          ],
+          "expected": "30",
+          "label": "April"
+        },
+        {
+          "args": [
+            "2024",
+            "6"
+          ],
+          "expected": "30",
+          "label": "June"
+        },
+        {
+          "args": [
+            "2024",
+            "9"
+          ],
+          "expected": "30",
+          "label": "September"
+        },
+        {
+          "args": [
+            "2024",
+            "11"
+          ],
+          "expected": "30",
+          "label": "November"
+        },
+        {
+          "args": [
+            "2024",
+            "12"
+          ],
+          "expected": "31",
+          "label": "December"
+        },
+        {
+          "args": [
+            "2024",
+            "0"
+          ],
+          "expected": "-1",
+          "label": "month zero"
+        },
+        {
+          "args": [
+            "2024",
+            "13"
+          ],
+          "expected": "-1",
+          "label": "month too large"
+        },
+        {
+          "args": [
+            "0",
+            "2"
+          ],
+          "expected": "-1",
+          "label": "year zero"
+        },
+        {
+          "args": [
+            "-1",
+            "2"
+          ],
+          "expected": "-1",
+          "label": "negative year"
+        },
+        {
+          "args": [
+            "9007199254740993",
+            "2"
+          ],
+          "expected": "-1",
+          "label": "exact huge common year; v2 rejects input above ceiling (v1 result 28)"
+        },
+        {
+          "args": [
+            "9007199254740996",
+            "2"
+          ],
+          "expected": "-1",
+          "label": "exact huge leap year; v2 rejects input above ceiling (v1 result 29)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "100",
+          "400",
+          "1900",
+          "2000",
+          "2024",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "2",
+          "3",
+          "4",
+          "6",
+          "9",
+          "11",
+          "12",
+          "13",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "max_of_three",
+      "name": "MaxOfThree",
+      "parameters": [
+        "a",
+        "b",
+        "c"
+      ],
+      "requirement": "Return the maximum of three nonnegative integers, allowing equality; invalid inputs return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (MaxOfThree; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if a > 1000000000000 || b > 1000000000000 || c > 1000000000000 then r == -1 else (if a < 0 || b < 0 || c < 0 then r == -1 else r == (if a >= b && a >= c then a else if b >= c then b else c))",
+      "witness": [
+        "1",
+        "3",
+        "2"
+      ],
+      "cases": [
+        {
+          "args": [
+            "3",
+            "2",
+            "1"
+          ],
+          "expected": "3",
+          "label": "first largest"
+        },
+        {
+          "args": [
+            "1",
+            "3",
+            "2"
+          ],
+          "expected": "3",
+          "label": "second largest"
+        },
+        {
+          "args": [
+            "1",
+            "2",
+            "3"
+          ],
+          "expected": "3",
+          "label": "third largest"
+        },
+        {
+          "args": [
+            "3",
+            "3",
+            "1"
+          ],
+          "expected": "3",
+          "label": "two maxima"
+        },
+        {
+          "args": [
+            "3",
+            "3",
+            "3"
+          ],
+          "expected": "3",
+          "label": "all equal"
+        },
+        {
+          "args": [
+            "0",
+            "0",
+            "0"
+          ],
+          "expected": "0",
+          "label": "all zero"
+        },
+        {
+          "args": [
+            "-1",
+            "2",
+            "3"
+          ],
+          "expected": "-1",
+          "label": "negative first"
+        },
+        {
+          "args": [
+            "1",
+            "-1",
+            "3"
+          ],
+          "expected": "-1",
+          "label": "negative second"
+        },
+        {
+          "args": [
+            "1",
+            "2",
+            "-1"
+          ],
+          "expected": "-1",
+          "label": "negative third"
+        },
+        {
+          "args": [
+            "1",
+            "9007199254740993",
+            "2"
+          ],
+          "expected": "-1",
+          "label": "exact huge maximum; v2 rejects input above ceiling (v1 result 9007199254740993)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "2",
+          "3",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "2",
+          "3",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "2",
+          "3",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    },
+    {
+      "id": "median_of_three",
+      "name": "MedianOfThree",
+      "parameters": [
+        "a",
+        "b",
+        "c"
+      ],
+      "requirement": "Return the middle order statistic of three nonnegative integers, preserving duplicate values; invalid inputs return -1. Revised policy v2: any input greater than 1000000000000 returns -1; otherwise the original policy applies.",
+      "source": "docs/POLICIES.md#simulated-requirements-revision (MedianOfThree; authored simulation, not independently human-certified)",
+      "domain": "true",
+      "precondition": "true",
+      "postcondition": "if a > 1000000000000 || b > 1000000000000 || c > 1000000000000 then r == -1 else (if a < 0 || b < 0 || c < 0 then r == -1 else r == (if (a <= b && b <= c) || (c <= b && b <= a) then b else if (b <= a && a <= c) || (c <= a && a <= b) then a else c))",
+      "witness": [
+        "1",
+        "2",
+        "3"
+      ],
+      "cases": [
+        {
+          "args": [
+            "1",
+            "2",
+            "3"
+          ],
+          "expected": "2",
+          "label": "ascending"
+        },
+        {
+          "args": [
+            "3",
+            "2",
+            "1"
+          ],
+          "expected": "2",
+          "label": "descending"
+        },
+        {
+          "args": [
+            "2",
+            "1",
+            "3"
+          ],
+          "expected": "2",
+          "label": "first is middle"
+        },
+        {
+          "args": [
+            "1",
+            "3",
+            "2"
+          ],
+          "expected": "2",
+          "label": "third is middle"
+        },
+        {
+          "args": [
+            "2",
+            "3",
+            "1"
+          ],
+          "expected": "2",
+          "label": "first middle reversed"
+        },
+        {
+          "args": [
+            "3",
+            "1",
+            "2"
+          ],
+          "expected": "2",
+          "label": "third middle reversed"
+        },
+        {
+          "args": [
+            "1",
+            "1",
+            "3"
+          ],
+          "expected": "1",
+          "label": "duplicate lower"
+        },
+        {
+          "args": [
+            "1",
+            "3",
+            "3"
+          ],
+          "expected": "3",
+          "label": "duplicate upper"
+        },
+        {
+          "args": [
+            "3",
+            "3",
+            "3"
+          ],
+          "expected": "3",
+          "label": "all equal"
+        },
+        {
+          "args": [
+            "0",
+            "0",
+            "0"
+          ],
+          "expected": "0",
+          "label": "all zero"
+        },
+        {
+          "args": [
+            "-1",
+            "2",
+            "3"
+          ],
+          "expected": "-1",
+          "label": "negative first"
+        },
+        {
+          "args": [
+            "1",
+            "-1",
+            "3"
+          ],
+          "expected": "-1",
+          "label": "negative second"
+        },
+        {
+          "args": [
+            "1",
+            "2",
+            "-1"
+          ],
+          "expected": "-1",
+          "label": "negative third"
+        },
+        {
+          "args": [
+            "9007199254740994",
+            "9007199254740993",
+            "1"
+          ],
+          "expected": "-1",
+          "label": "exact huge median; v2 rejects input above ceiling (v1 result 9007199254740993)"
+        }
+      ],
+      "samples": [
+        [
+          "-1",
+          "0",
+          "1",
+          "2",
+          "3",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "2",
+          "3",
+          "9007199254740993",
+          "1000000000000",
+          "1000000000001"
+        ],
+        [
+          "-1",
+          "0",
+          "1",
+          "2",
+          "3",
+          "9007199254740994",
+          "1000000000000",
+          "1000000000001"
+        ]
+      ]
+    }
+  ]
+}

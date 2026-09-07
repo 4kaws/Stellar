@@ -1,0 +1,57 @@
+name: Stellar beta verification
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Windows / Node 24
+    runs-on: windows-latest
+    timeout-minutes: 20
+    defaults:
+      run:
+        shell: pwsh
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: '24'
+          package-manager-cache: false
+
+      - name: Require the committed review baseline
+        run: |
+          git ls-files --error-unmatch -- trusted/baseline-lock.json
+          if ($LASTEXITCODE -ne 0 -or -not (Test-Path -LiteralPath 'trusted/baseline-lock.json' -PathType Leaf)) {
+            throw 'The reviewed baseline must be committed. CI never creates or reseals it.'
+          }
+
+      - name: Install locked dependencies without lifecycle scripts
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Install and validate the pinned toolchain and baseline
+        run: npm run setup
+
+      - name: Run framework tests
+        run: npm test
+
+      - name: Run the complete pilot
+        run: npm run pilot
+
+      - name: Preserve reports and generated evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: stellar-beta-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: artifacts/
+          if-no-files-found: warn
+          retention-days: 14

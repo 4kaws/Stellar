@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "label": "wrong-discount",
+  "implementations": {
+    "discount": "if price < 0 || bps < 0 || bps > 10000 then -1 else price * (10000 - bps) / 10000 + 1",
+    "add_tax": "if price < 0 || bps < 0 || bps > 10000 then -1 else price + (price * bps + 9999) / 10000",
+    "prorate": "if amount < 0 || total <= 0 || used < 0 || used > total then -1 else amount * used / total",
+    "ceil_div": "if amount < 0 || size <= 0 then -1 else (amount + size - 1) / size",
+    "clamp": "if lower < 0 || upper < lower then -1 else if value < lower then lower else if value > upper then upper else value",
+    "saturating_sub": "if balance < 0 || debit < 0 then -1 else if balance < debit then 0 else balance - debit",
+    "transfer_remaining": "if balance < 0 || amount < 0 || amount > balance then -1 else balance - amount",
+    "shipping_fee": "if subtotal < 0 || threshold < 0 || fee < 0 then -1 else if subtotal >= threshold then 0 else fee",
+    "loyalty_points": "if spend < 0 || unit <= 0 then -1 else spend / unit",
+    "tier_rate": "if quantity < 0 || threshold < 0 || low < 0 || high < 0 then -1 else if quantity >= threshold then high else low",
+    "late_fee": "if days < 0 || grace < 0 || rate < 0 || cap < 0 then -1 else if days <= grace then 0 else if (days - grace) * rate > cap then cap else (days - grace) * rate",
+    "refund_cap": "if requested < 0 || paid < 0 then -1 else if requested < paid then requested else paid",
+    "inventory_available": "if stock < 0 || reserved < 0 || reserved > stock then -1 else stock - reserved",
+    "reorder_quantity": "if available < 0 || target < 0 then -1 else if target > available then target - available else 0",
+    "interval_overlap": "if a_start < 0 || a_end < a_start || b_start < 0 || b_end < b_start then -1 else if (if a_end < b_end then a_end else b_end) > (if a_start > b_start then a_start else b_start) then (if a_end < b_end then a_end else b_end) - (if a_start > b_start then a_start else b_start) else 0",
+    "within_window": "if start < 0 || end < start then -1 else if start <= value && value < end then 1 else 0",
+    "leap_year": "if year <= 0 then -1 else if year % 400 == 0 || (year % 4 == 0 && year % 100 != 0) then 1 else 0",
+    "days_in_month": "if year <= 0 || month < 1 || month > 12 then -1 else if month == 2 then (if year % 400 == 0 || (year % 4 == 0 && year % 100 != 0) then 29 else 28) else if month == 4 || month == 6 || month == 9 || month == 11 then 30 else 31",
+    "max_of_three": "if a < 0 || b < 0 || c < 0 then -1 else if a >= b && a >= c then a else if b >= c then b else c",
+    "median_of_three": "if a < 0 || b < 0 || c < 0 then -1 else if a <= b then (if b <= c then b else if a <= c then c else a) else (if a <= c then a else if b <= c then c else b)"
+  }
+}

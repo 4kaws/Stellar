@@ -1,0 +1,26 @@
+{
+  "schemaVersion": 1,
+  "label": "refactor",
+  "implementations": {
+    "discount": "if price >= 0 && bps >= 0 && bps <= 10000 then (price * 10000 - price * bps) / 10000 else -1",
+    "add_tax": "if price >= 0 && bps >= 0 && bps <= 10000 then (price * 10000 + price * bps + 9999) / 10000 else -1",
+    "prorate": "if total > 0 && amount >= 0 && used >= 0 && total >= used then used * amount / total else -1",
+    "ceil_div": "if size > 0 && amount >= 0 then (size - 1 + amount) / size else -1",
+    "clamp": "if lower >= 0 && lower <= upper then (if value > upper then upper else if value < lower then lower else value) else -1",
+    "saturating_sub": "if debit >= 0 && balance >= 0 then (if balance >= debit then balance - debit else 0) else -1",
+    "transfer_remaining": "if amount >= 0 && amount <= balance then balance + (0 - amount) else -1",
+    "shipping_fee": "if fee >= 0 && threshold >= 0 && subtotal >= 0 then (if subtotal < threshold then fee else 0) else -1",
+    "loyalty_points": "if unit > 0 && spend >= 0 then (spend + 0) / unit else -1",
+    "tier_rate": "if high >= 0 && low >= 0 && threshold >= 0 && quantity >= 0 then (if quantity < threshold then low else high) else -1",
+    "late_fee": "if cap >= 0 && rate >= 0 && grace >= 0 && days >= 0 then (if days > grace then (if (days - grace) * rate <= cap then (days - grace) * rate else cap) else 0) else -1",
+    "refund_cap": "if paid >= 0 && requested >= 0 then (if paid <= requested then paid else requested) else -1",
+    "inventory_available": "if reserved >= 0 && reserved <= stock then stock + (0 - reserved) else -1",
+    "reorder_quantity": "if target >= 0 && available >= 0 then (if available >= target then 0 else target - available) else -1",
+    "interval_overlap": "if a_start >= 0 && a_end >= a_start && b_start >= 0 && b_end >= b_start then (if (if a_start < b_start then b_start else a_start) >= (if a_end > b_end then b_end else a_end) then 0 else (if a_end > b_end then b_end else a_end) - (if a_start < b_start then b_start else a_start)) else -1",
+    "within_window": "if start >= 0 && end >= start then (if value < start || value >= end then 0 else 1) else -1",
+    "leap_year": "if year > 0 then (if year % 400 == 0 then 1 else if year % 100 == 0 then 0 else if year % 4 == 0 then 1 else 0) else -1",
+    "days_in_month": "if year > 0 && month >= 1 && month <= 12 then (if month == 4 || month == 6 || month == 9 || month == 11 then 30 else if month != 2 then 31 else if year % 400 == 0 then 29 else if year % 100 == 0 then 28 else if year % 4 == 0 then 29 else 28) else -1",
+    "max_of_three": "if c >= 0 && b >= 0 && a >= 0 then (if b > a then (if c > b then c else b) else if c > a then c else a) else -1",
+    "median_of_three": "if c >= 0 && b >= 0 && a >= 0 then (if b <= a then (if a <= c then a else if b <= c then c else b) else (if b <= c then b else if a <= c then c else a)) else -1"
+  }
+}

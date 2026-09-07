@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "provenance": "Authored pilot defaults; not independent domain-owner certification",
+  "files": {
+    "trusted/catalog.json": "fadc9f043620625672fe313a0bd40f63a036d26a345ac64f06e19447c890b957",
+    "trusted/catalog-v2.json": "6f63869aa4df44144e3868a55769d70c3aa36b2c1ca64d8348a238ca56b42eb4",
+    "trusted/oracles.mjs": "9d8136c13300946d1ec0beeb0420d4941104bca62580dc00224f15b7eea82eef",
+    "toolchain.json": "dbe352d721934d13f2a76824aeb4999588d83ba30438e009498756280038b30f",
+    "package.json": "7f31ae69008176cdd4a48d9d34f21dd26c5940d4398383578dc935688e245baa",
+    "package-lock.json": "cc49392f98b039bcad8433e3e4ad973e7a35635cb9df37d356cb833ad6978fdf",
+    ".gitattributes": "8d75fbed0329d55480242ea79c61cbdd3da312c700298bfba9572b81ec325cc6",
+    "scripts/setup-tools.ps1": "1470a0979e2a02e11ababf16dc6164aaac25941a48b997b8cb00d1fca3d4b98b",
+    "LICENSE-MIT": "a77ac6a302f5904acdd8c8b921e74201be4385b6f0846e67cd4791295b6fc63d",
+    "LICENSE-APACHE": "cfc7749b96f63bd31c3c42b5c471bf756814053e847c10f3eb003417bc523d30",
+    "THIRD_PARTY_NOTICES.md": "629e0790d6d48915b664f4bcaaefd1cbe0e3594881db0a9f69d01c1277b4c9e1",
+    "src/cli.mjs": "94602159df0daa58975c41c3ebdc39fe50a57bd196aa0c4a7accece3c12b11eb",
+    "src/common.mjs": "ea5845a6578047f2efe961b08a45a2fe5a59317566ad7fcb71a78d4dce707211",
+    "src/contracts.mjs": "25fd026ad7bb9e95368175323655f4bf961f00b8bf3aac5f1694536d3b75810a",
+    "src/experiments.mjs": "a8bcace58769a45c00976ee73e888bbf77d5435e79ebbab3effb914729dcb08e",
+    "src/expression.mjs": "63835890fbf043836cb7b5ed163d7eafa55797f14e0fb9b4e41df806631dcb9a",
+    "src/pipeline.mjs": "efe1422307d5d2cb32d6eb295d3c1b29134a6661d5211d7d638d855065ed9b6d",
+    "src/runtime-check.mjs": "8b7f3b857f76f5022a1af929e5c740c31265d60f51a9cba4fdf2ea0e08c92aaf",
+    "src/toolchain.mjs": "a42625b78042a7417d3118839cfbf7fe62f72020c3a0f682f4d26bf733736a3f",
+    "src/trust.mjs": "2e4b46e9f64e29968fe624ac314f6167668720fb53fda66341556276c68b7bb2",
+    "node_modules/bignumber.js/package.json": "192208575108629a3272453526258511a5911a8127ab955371fb1f25ac79e99d",
+    "node_modules/bignumber.js/bignumber.js": "08ff132ba18de1678e18a9f68bcad39cc970c94f7d219850468b2a7510cff0ce"
+  }
+}

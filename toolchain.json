@@ -1,0 +1,40 @@
+{
+  "schemaVersion": 1,
+  "dafny": {
+    "version": "4.11.0",
+    "versionOutput": "4.11.0+fcb2042d6d043a2634f0854338c08feeaaaf4ae2",
+    "platform": "win-x64",
+    "installDirectory": ".tools/dafny-4.11.0",
+    "archive": {
+      "url": "https://github.com/dafny-lang/dafny/releases/download/v4.11.0/dafny-4.11.0-x64-windows-2022.zip",
+      "path": ".tools/dafny-4.11.0-x64-windows-2022.zip",
+      "sha256": "3653f05a111ca21e234709ea7b25ce96083fd6c6f10484256ba54110dbc0654d"
+    },
+    "executable": {
+      "path": ".tools/dafny-4.11.0/dafny/Dafny.exe",
+      "sha256": "aebb6e5ea4aa1a8ba5432ee214c47255fd7aa5a583f5cac8e83d27d9992c4dd0"
+    },
+    "solver": {
+      "version": "4.12.1",
+      "path": ".tools/dafny-4.11.0/dafny/z3/bin/z3-4.12.1.exe",
+      "sha256": "53aca6c734e7d012ec07fe626bba1e3921269777133ce58784d26c4552e3fe0b"
+    },
+    "integrity": {
+      "root": ".tools/dafny-4.11.0/dafny",
+      "fileCount": 290,
+      "treeSha256": "53c3c7e3aa1208970174596d16f26107c407324c23a10e449206c33e96c35826",
+      "format": "SHA256 of UTF-8, no BOM: ordinal-sorted relative forward-slash paths, each followed by TAB, lowercase file SHA256, LF"
+    }
+  },
+  "runtime": {
+    "bignumber": {
+      "version": "9.3.1",
+      "integrity": "sha512-Ko0uX15oIUS7wJ3Rb30Fs6SkVbLmPBAKdlm7q9+ak9bbIeFf0MwuBsQV6z7+X768/cHsfg+WlysDWJcmthjsjQ==",
+      "integrityTree": {
+        "root": "node_modules/bignumber.js",
+        "fileCount": 10,
+        "treeSha256": "d18d2be3037114394f420fffe6fefb58703a817d89ee3363e86de234df0c8c55"
+      }
+    }
+  }
+}
