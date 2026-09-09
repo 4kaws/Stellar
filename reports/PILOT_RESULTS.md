@@ -1,14 +1,14 @@
 # Pilot results
 
-Completed: 2026-09-07T15:31:08.168Z
+Completed: 2026-09-07T16:13:17.731Z
 
 Overall: **passed**
 
 | Run | Status | Evidence |
 |---|---|---|
-| Baseline, 20 components | accepted-for-pilot | [receipt](../artifacts/2026-09-07T15-29-37-600Z-full-8269a44c/report.json) |
-| Refactor and v2 requirements | passed | [evolution](../artifacts/2026-09-07T15-29-54-696Z-evolution-495d018a/evolution.json) |
-| 19 adversarial checks | passed | [attacks](../artifacts/2026-09-07T15-30-26-970Z-attacks-2f2f0d3b/attacks.json) |
+| Baseline, 20 components | accepted-for-pilot | [receipt](../artifacts/2026-09-07T16-11-53-103Z-full-93e7ce24/report.json) |
+| Refactor and v2 requirements | passed | [evolution](../artifacts/2026-09-07T16-12-07-339Z-evolution-0df3066a/evolution.json) |
+| 19 adversarial checks | passed | [attacks](../artifacts/2026-09-07T16-12-37-887Z-attacks-b13b890b/attacks.json) |
 
 These results establish behavior on the authored pilot tasks under the recorded trust assumptions. They are not a production certification or a model success-rate estimate.
 
